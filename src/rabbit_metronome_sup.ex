@@ -6,8 +6,6 @@ defmodule Rabbit.Metronome.Supervisor do
     Supervisor.start_link(__MODULE__, [], name: __MODULE__)
   end
 
-  @worker_name Rabbit.Metronome.Worker
-
   def init([]) do
     children = [
       worker(Rabbit.Metronome.Worker, [], [
