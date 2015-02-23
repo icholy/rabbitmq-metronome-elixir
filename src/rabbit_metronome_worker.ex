@@ -12,7 +12,7 @@ defmodule Rabbit.Metronome.Worker do
   Record.defrecord ExchangeDeclare, :"exchange.declare", Record.extract(
       :"exchange.declare", from_lib: @amqp_lib)
 
-  Record.defrecord PBasic, :P_basic, Record.extract(
+  Record.defrecord BasicProperties, :P_basic, Record.extract(
       :P_basic, from_lib: @amqp_lib)
 
   Record.defrecord AmqpMsg, :amqp_msg, Record.extract(
@@ -37,20 +37,21 @@ defmodule Rabbit.Metronome.Worker do
     {:ok, %{channel: channel}}
   end
 
+  defp make_rk do
+    {{year, month, day} = date, {hour, min, sec}} = :erlang.universaltime()
+    day_of_week = :calendar.day_of_the_week(date)
+    [year, month, day, day_of_week, hour, min, sec] |> Enum.join "."
+  end
+
   def handle_call(_msg, _from, state) do
     {:reply, :unknown_command, state}
   end
 
   def handle_cast(:fire, %{channel: channel} = state) do
-    {{year, month, day} = date, {hour, min, sec}} = :erlang.universaltime()
-    day_of_week = :calendar.day_of_the_week(date)
-    routing_key = String.Chars.to_string(
-        :io_lib.formati(@rk_format, 
-            [year, month, day, day_of_week, hour, min, sec]))
-    message = routing_key
-    properties = PBasic(content_type: "text/plain", delivery_mode: 1)
-    basic_publish = BasicPublish(exchange: "metronome", routing_key: routing_key)
+    message = routing_key = make_rk()
+    properties = BasicProperties(content_type: "text/plain", delivery_mode: 1)
     content = AmqpMsg(props: properties, payload: message)
+    basic_publish = BasicPublish(exchange: "metronome", routing_key: routing_key)
     :amqp_channel.call(channel, basic_publish, content)
     :timer.apply_after(1000, __MODULE__, fire, [])
   end
