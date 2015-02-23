@@ -2,7 +2,6 @@
 defmodule Rabbit.Metronome.Worker do
 
   @amqp_lib "amqp_client/include/amqp_client.hrl"
-  @rk_format "~4.10.0B.~2.10.0B.~2.10.0B.~1.10.0B.~2.10.0B.~2.10.0B.~2.10.0B"
   @server_name {:global, __MODULE__}
 
   require Record
