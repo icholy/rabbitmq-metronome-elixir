@@ -10,7 +10,7 @@ defmodule Rabbit.Metronome.Supervisor do
     children = [
       worker(Rabbit.Metronome.Worker, [], [
         restart: :permanent,
-        shutdown: 10000
+        shutdown: 10_000
       ])
     ]
     supervise(children, [
