@@ -9,19 +9,14 @@ defmodule Rabbit.Metronome.Worker do
 
   Record.defrecord Exchange, :exchange, Record.extract(
       :exchange, from_lib: @amqp_lib)
-
   Record.defrecord ExchangeDeclare, :"exchange.declare", Record.extract(
       :"exchange.declare", from_lib: @amqp_lib)
-
   Record.defrecord PropertiesBasic, :P_basic, Record.extract(
       :P_basic, from_lib: @amqp_lib)
-
   Record.defrecord AmqpMsg, :amqp_msg, Record.extract(
       :amqp_msg, from_lib: @amqp_lib)
-
   Record.defrecord BasicPublish, :"basic.publish", Record.extract(
       :"basic.publish", from_lib: @amqp_lib)
-
   Record.defrecord AmqpParamsDirect, :amqp_params_direct, Record.extract(
       :amqp_params_direct, from_lib: @amqp_lib)
 
