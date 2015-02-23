@@ -1,0 +1,6 @@
+build/
+dist/
+*.beam
+cover/
+tmp/
+ebin/rabbitmq_metronome\.app
