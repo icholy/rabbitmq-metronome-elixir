@@ -6,18 +6,17 @@ defmodule Rabbit.Metronome.Worker do
   @server_name {:global, __MODULE__}
 
   require Record
-
-  Record.defrecord Exchange, :exchange, Record.extract(
+  Record.defrecord :exchange, Record.extract(
       :exchange, from_lib: @amqp_lib)
-  Record.defrecord ExchangeDeclare, :"exchange.declare", Record.extract(
+  Record.defrecord :exchange_declare, :"exchange.declare", Record.extract(
       :"exchange.declare", from_lib: @amqp_lib)
-  Record.defrecord PropertiesBasic, :P_basic, Record.extract(
+  Record.defrecord :properties_basic, :P_basic, Record.extract(
       :P_basic, from_lib: @amqp_lib)
-  Record.defrecord AmqpMsg, :amqp_msg, Record.extract(
+  Record.defrecord :amqp_msg, Record.extract(
       :amqp_msg, from_lib: @amqp_lib)
-  Record.defrecord BasicPublish, :"basic.publish", Record.extract(
+  Record.defrecord :basic_publish, :"basic.publish", Record.extract(
       :"basic.publish", from_lib: @amqp_lib)
-  Record.defrecord AmqpParamsDirect, :amqp_params_direct, Record.extract(
+  Record.defrecord :amqp_params_direct, Record.extract(
       :amqp_params_direct, from_lib: @amqp_lib)
 
   def start_link() do
@@ -34,10 +33,10 @@ defmodule Rabbit.Metronome.Worker do
   end
 
   def init([]) do
-    {:ok, connection} = :amqp_connection.start(AmqpParamsDirect())
+    {:ok, connection} = :amqp_connection.start(amqp_params_direct())
     {:ok, channel} = :amqp_connection.open_channel(connection)
     :amqp_channel.call(channel, 
-        ExchangeDeclare(exchange: "metronome", type: "topic"))
+        :exchange_declare(exchange: "metronome", type: "topic"))
     fire()
     {:ok, %{channel: channel}}
   end
@@ -48,9 +47,9 @@ defmodule Rabbit.Metronome.Worker do
 
   def handle_cast(:fire, %{channel: channel} = state) do
     message = routing_key = format_date_time(:erlang.universaltime())
-    properties = PropertiesBasic(content_type: "text/plain", delivery_mode: 1)
-    content = AmqpMsg(props: properties, payload: message)
-    basic_publish = BasicPublish(exchange: "metronome", routing_key: routing_key)
+    properties = :properties_basic(content_type: "text/plain", delivery_mode: 1)
+    content = :amqp_msg(props: properties, payload: message)
+    basic_publish = :basic_publish(exchange: "metronome", routing_key: routing_key)
     :amqp_channel.call(channel, basic_publish, content)
     :timer.apply_after(1000, __MODULE__, fire, [])
   end
