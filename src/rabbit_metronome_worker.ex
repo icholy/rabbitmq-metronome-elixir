@@ -25,7 +25,7 @@ defmodule Rabbit.Metronome.Worker do
       :amqp_params_direct, from_lib: @amqp_lib)
 
   def start_link() do
-    GenServer.start_link __MODULE__, [], []
+    GenServer.start_link __MODULE__, [], name: {:global, __MODULE__}
   end
 
   def init([]) do
@@ -68,7 +68,7 @@ defmodule Rabbit.Metronome.Worker do
   end
 
   def fire do
-    GenServer.cast __MODULE__, :fire
+    GenServer.cast {:global, __MODULE__}, :fire
   end
   
 end
