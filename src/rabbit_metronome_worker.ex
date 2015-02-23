@@ -42,7 +42,7 @@ defmodule Rabbit.Metronome.Worker do
   end
 
   def init([]) do
-    {:ok, connection} = :amqp_connection.start(amqp_params_direct())
+    {:ok, connection} = :amqp_connection.start(:amqp_params_direct())
     {:ok, channel} = :amqp_connection.open_channel(connection)
     :amqp_channel.call(channel, 
         :exchange_declare(exchange: "metronome", type: "topic"))
