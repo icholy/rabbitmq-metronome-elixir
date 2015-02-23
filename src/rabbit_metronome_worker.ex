@@ -6,18 +6,26 @@ defmodule Rabbit.Metronome.Worker do
   @server_name {:global, __MODULE__}
 
   require Record
-  Record.defrecord :exchange, Record.extract(
-      :exchange, from_lib: @amqp_lib)
-  Record.defrecord :exchange_declare, :"exchange.declare", Record.extract(
-      :"exchange.declare", from_lib: @amqp_lib)
-  Record.defrecord :properties_basic, :P_basic, Record.extract(
-      :P_basic, from_lib: @amqp_lib)
-  Record.defrecord :amqp_msg, Record.extract(
-      :amqp_msg, from_lib: @amqp_lib)
-  Record.defrecord :basic_publish, :"basic.publish", Record.extract(
-      :"basic.publish", from_lib: @amqp_lib)
-  Record.defrecord :amqp_params_direct, Record.extract(
-      :amqp_params_direct, from_lib: @amqp_lib)
+  Record.defrecord :exchange,
+      Record.extract(:exchange, from_lib: @amqp_lib)
+
+  Record.defrecord :exchange_declare, :"exchange.declare",
+      Record.extract(:"exchange.declare", from_lib: @amqp_lib)
+
+  Record.defrecord :properties_basic, :P_basic,
+      Record.extract(:P_basic, from_lib: @amqp_lib)
+
+  Record.defrecord :amqp_msg,
+      Record.extract(:amqp_msg, from_lib: @amqp_lib)
+
+  Record.defrecord :basic_publish, :"basic.publish",
+      Record.extract(:"basic.publish", from_lib: @amqp_lib)
+
+  Record.defrecord :amqp_params_direct,
+      Record.extract(:amqp_params_direct, from_lib: @amqp_lib)
+
+
+  # Client API
 
   def start_link() do
     GenServer.start_link __MODULE__, [], name: @server_name
@@ -26,6 +34,8 @@ defmodule Rabbit.Metronome.Worker do
   def fire do
     GenServer.cast @server_name, :fire
   end
+
+  # Server API
 
   defp format_date_time({{year, month, day} = date, {hour, min, sec}}) do
     day_of_week = :calendar.day_of_the_week(date)
