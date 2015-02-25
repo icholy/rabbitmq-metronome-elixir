@@ -42,10 +42,10 @@ defmodule Rabbit.Metronome.Worker do
   end
 
   def init([]) do
-    {:ok, connection} = :amqp_connection.start(:amqp_params_direct())
+    {:ok, connection} = :amqp_connection.start(amqp_params_direct())
     {:ok, channel} = :amqp_connection.open_channel(connection)
     :amqp_channel.call(channel, 
-        :exchange_declare(exchange: "metronome", type: "topic"))
+        exchange_declare(exchange: "metronome", type: "topic"))
     fire()
     {:ok, %{channel: channel}}
   end
@@ -56,9 +56,9 @@ defmodule Rabbit.Metronome.Worker do
 
   def handle_cast(:fire, %{channel: channel} = state) do
     message = routing_key = format_date_time(:erlang.universaltime())
-    properties = :properties_basic(content_type: "text/plain", delivery_mode: 1)
-    content = :amqp_msg(props: properties, payload: message)
-    basic_publish = :basic_publish(exchange: "metronome", routing_key: routing_key)
+    properties = properties_basic(content_type: "text/plain", delivery_mode: 1)
+    content = amqp_msg(props: properties, payload: message)
+    basic_publish = basic_publish(exchange: "metronome", routing_key: routing_key)
     :amqp_channel.call(channel, basic_publish, content)
     :timer.apply_after(1000, __MODULE__, fire, [])
   end
